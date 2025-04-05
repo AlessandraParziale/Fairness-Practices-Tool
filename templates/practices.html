@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Practices</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #000;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-top: 40px;
+            margin-bottom: 10px;
+            color: #000;
+        }
+
+        h3 {
+            font-size: 20px;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            color: #000;
+        }
+
+        p {
+            font-size: 16px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        a {
+            color: #6a0dad;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .practice {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 20px;
+        }
+
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .flex-item {
+            flex: 1;
+            border-right: 1px solid #ccc;
+            padding-right: 20px;
+        }
+
+        .flex-item:last-child {
+            border-right: none;
+        }
+
+        .metrics-container {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .selection-info-box {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 40px;
+            width: fit-content;
+            background-color: #6a0dad;
+            color: white;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .selection-info {
+            margin: 0;
+        }
+
+        .selection-info h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .selection-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .selection-info b {
+            font-weight: bold;
+        }
+
+        .description {
+            text-align: center;
+            font-size: 18px;
+            color: #555;
+        }
+
+
+    </style>
+</head>
+<head>
+    <script type="text/javascript" async
+        src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+</head>
+<body>
+    <a href="{{ url_for('index') }}">&larr; Back</a>
+
+    <div class="selection-info-box">
+        <div class="selection-info">
+            <p><b>Context:</b> {{ selected_context }}</p>
+            <p><b>Sensitive Attribute:</b> {{ selected_attribute }}</p>
+            <p><b>Task:</b> {{ selected_task }}</p>
+        </div>
+    </div>
+
+    <p class="description"> - - - - - </p>
+    <p class="description">Below are the best practices for the selected combination.
+        <br>These practices are characterized by a Cost-Effectiveness value, defined as the ratio between
+        the cost in terms of performance loss <br>[calculated as the difference in performance between the baseline model without practices (B) and the model (I) incorporating fairness-aware practices]
+        <br>and the fairness gain [given by the difference in fairness metrics between fairness-aware models (I) and baseline models (B)].
+        <br>The Cost-Effectiveness value, ranging from [-1,1], represents an optimal balance between improving fairness and maintaining acceptable performance.
+        <br>The formula used for the calculation is as follows:
+    </p>
+
+    <!-- Formula -->
+    <p class="description">
+        \[
+        \text{Cost-effectiveness} = \frac{\text{Performance}_B - \text{Performance}_I}{\text{Fairness}_I - \text{Fairness}_B}
+        \]
+    </p>
+
+    <p class="description"> - - - - - </p>
+
+    {% for practice in selected_practices %}
+    <div class="practice">
+        <h2>{{ practice.title }}</h2>
+        <p><b>Cost Effectiveness:</b> {{ "{:.3f}".format(practice.metrics.costEffectiveness) if practice.metrics.costEffectiveness is not none else "N/A" }}</p>
+        <div class="flex-container">
+            <div class="flex-item">
+                <div class="metrics-container">
+                    <h3>Performance Metrics</h3>
+                    {% for key, value in practice.metrics.performance.items() %}
+                        <p><b>{{ {'silohouette': 'Silhouette Coefficient', 'Precision': 'Precision', 'Recall': 'Recall', 'Accuracy': 'Accuracy', 'F1': 'F1-Score', 'MSE': 'Mean Squared Error', 'MAD': 'Mean Absolute Deviation'}.get(key, key) }}:</b> {{ "{:.3f}".format(value) if value is not none else "N/A" }}</p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="flex-item">
+                <div class="metrics-container">
+                    <h3>Fairness Metrics</h3>
+                    {% for key, value in practice.metrics.fairness.items() %}
+                        <p><b>{{ {'ae': 'Average Euclidean Distance', 'me': 'Maximum Euclidean Distance', 'aw': 'Average Wasserstein Distance', 'mw': 'Maximum Wasserstein Distance', 'AAOD': 'Average Abs Odds Difference', 'FDRD': 'False Discovery Rate Difference', 'DI': 'Disparate Impact', 'independence': 'Independence', 'separation': 'Separation', 'sufficiency': 'Sufficiency'}.get(key, key) }}:</b> <span style="color:black; padding: 2px;">{{ "{:.3f}".format(value) if value is not none else "N/A" }}</span></p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+</body>
+</html>
