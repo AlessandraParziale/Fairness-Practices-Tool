@@ -1,11 +1,11 @@
-# Fairness-Aware Practices Recommender
+# Practices Suggestion Tool
 
 This web-based tool suggests **fairness-aware practices** based on the dataset, context, attribute, and task selected by the user. It leverages a knowledge base computed through 5940 experiments to return the top practices that balance **performance** and **fairness** based on your specific use case.
 
 ## Features
 
 - Simple web interface to select context, attribute, and task.
-- Returns the best fairness-aware data preparation practices ranked by cost-effectiveness.
+- Returns the best fairness-aware practices ranked by cost-effectiveness.
 - Visualizes the relationship between practices and contexts.
 - Supports classification, regression, and clustering tasks.
 
